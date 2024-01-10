@@ -1,4 +1,5 @@
-from decimal import Decimal
+import requests
+from decimal import Decimal, getcontext
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.views import View
@@ -31,24 +32,51 @@ class CurrencyConversionView(View):
             to_currency_code = request.GET.get('to')
             amount = Decimal(request.GET.get('amount', 1))
 
-            from_currency = Currency.objects.get(code=from_currency_code)
-            to_currency = Currency.objects.get(code=to_currency_code)
+            
+            
+            getcontext().prec = 28  #
+            API_KEY = 'b81190afa89042ba894027d5ae659bfa'
+            
+            
+            url = f'https://exchange-rates.abstractapi.com/v1/live?api_key={API_KEY}&base=USD'
 
-            exchange_rate = ExchangeRate.objects.filter(from_currency=from_currency, to_currency = to_currency).latest('last_updated')
+            response = requests.get(url)
+            data = response.json()
+            
 
-            converted_amount = amount * exchange_rate.rate
+            if 'error' in data:
+                return JsonResponse({'error': f'Error obtaining exchange rates: {data["error"]["description"]}'}, status=500)
+
+            
+            rates = data['exchange_rates']
+            
+            from_currency_rate = Decimal(str(rates.get(from_currency_code, 0)))
+            
+            to_currency_rate = Decimal(str(rates.get(to_currency_code, 0)))
+
+            if from_currency_code == 'USD':
+                from_currency_rate = Decimal('1.0')
+            if to_currency_code == 'USD':
+                to_currency_rate = Decimal('1.0')
+            print(from_currency_rate, to_currency_rate)
+           
+            exchange_rate = to_currency_rate / from_currency_rate
+            converted_amount = amount / from_currency_rate * to_currency_rate
+            exchange_rate_str = format(exchange_rate, '.10f')
+            converted_amount_str = format(converted_amount, '.10f')
+
+            # Calcular o valor convertido
+            
 
             response_data = {
-                'from_currency': from_currency.code,
-                'to_currency': to_currency.code,
-                'exchange_rate': exchange_rate.rate,
+                'from_currency': from_currency_code,
+                'to_currency': to_currency_code,
+                'exchange_rate': exchange_rate_str,
                 'amount': amount,
-                'converted_amount': converted_amount
-            }
+                'converted_amount': converted_amount_str
+        }
 
             return JsonResponse(response_data)
-        
-        except Currency.DoesNotExist:
-            return JsonResponse({'error': 'Currency not found'}, status=404)
-        except ExchangeRate.DoesNotExist:
-            return JsonResponse({'error': 'Exchange rate not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

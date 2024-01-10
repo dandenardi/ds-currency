@@ -10,7 +10,7 @@ def update_exchange_rates():
     for to_currency_code in currencies_to_update:
         if to_currency_code != base_currency_code:
             url = f'https://open.er-api.com/v6/latest/{base_currency_code}?symbols={to_currency_code}&show_alternative=1&apikey={OPENRATES_APP_ID}'
-            print(url)
+            
             try:
                 response = requests.get(url)
                 data = response.json()
@@ -35,3 +35,5 @@ def update_exchange_rates():
 
             except requests.RequestException as e:
                 print(f'Error obtaining the currency from {base_currency_code} to {to_currency_code}: {e}')
+            
+
