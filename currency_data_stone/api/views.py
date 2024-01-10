@@ -2,11 +2,11 @@ import requests
 from decimal import Decimal, getcontext
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
 from .models import Currency, ExchangeRate
-from .serializers import CurrencySerializer, ExchangeRateSerializer
-from api.utils import update_exchange_rates
+from .serializers import CurrencySerializer, ExchangeRateSerializer 
 
 
 class CurrencyList(APIView):
@@ -28,8 +28,8 @@ class ExchangeRateView(APIView):
 class CurrencyConversionView(View):
     def get(self, request):
         try:
-            from_currency_code = request.GET.get('from')
-            to_currency_code = request.GET.get('to')
+            from_currency_code = request.GET.get('from', 'USD')
+            to_currency_code = request.GET.get('to', 'BRL')
             amount = Decimal(request.GET.get('amount', 1))
 
             
@@ -80,3 +80,11 @@ class CurrencyConversionView(View):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+        
+class IntroView(View):
+    
+    template_name = 'intro.html'
+    
+    def get(self, request):
+        
+        return render(request, self.template_name)
