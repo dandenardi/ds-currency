@@ -1,13 +1,17 @@
 from django.db import models
-
-
 from django.db import models
 
 class Currency(models.Model):
+    '''
+        Models the currency in database
+    '''
     code = models.CharField(max_length=3, unique=True)
     name = models.CharField(max_length=50)
 
 class ExchangeRate(models.Model):
+    '''
+        Models the exchange rates in database
+    '''
     from_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='from_currency')
     to_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='to_currency')
     rate = models.DecimalField(max_digits=16, decimal_places=6)

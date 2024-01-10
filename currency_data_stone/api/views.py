@@ -10,12 +10,24 @@ from .serializers import CurrencySerializer, ExchangeRateSerializer
 
 
 class CurrencyList(APIView):
+    '''
+        Class responsible for updating the list of currencies. 
+        The current version doesn't use this class, as the data is achieved in real time.
+        It may used to expand the software in near future.
+    '''
     def get(self, request):
         currencies = Currency.objects.all()
         serializer = CurrencySerializer(currencies, many=True)
         return Response(serializer.data)
 
 class ExchangeRateView(APIView):
+
+    '''
+        Class responsible for updating the exchange rates between pairs of currencies. 
+        The current version doesn't use this class, as the data is achieved in real time.
+        It may used to expand the software in near future.
+    '''
+
     def get(self, request, from_currency_code, to_currency_code):
         from_currency = Currency.objects.get(code=from_currency_code)
         to_currency = Currency.objects.get(code=to_currency_code)
@@ -26,6 +38,12 @@ class ExchangeRateView(APIView):
 
 
 class CurrencyConversionView(View):
+    '''
+        Class responsible for the actual conversion between currencies. 
+        Parameters: from (3 letter currency code), to (3 letter currency code), amount (value to be converted (decimal))
+        Returns: JSON with currencies, value to be converted and converted currency
+        Raises an error in JSON format, in caso of fail in converting
+    '''
     def get(self, request):
         try:
             from_currency_code = request.GET.get('from', 'USD')
