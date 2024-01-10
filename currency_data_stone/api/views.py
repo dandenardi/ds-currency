@@ -100,7 +100,10 @@ class CurrencyConversionView(View):
             return JsonResponse({'error': str(e)}, status=500)
         
 class IntroView(View):
-    
+    '''
+        Class that returns information about the API when the default endpoint is accessed. 
+        Returns: a HTML document with basic information
+    '''
     template_name = 'intro.html'
     
     def get(self, request):

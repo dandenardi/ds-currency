@@ -5,7 +5,7 @@ def update_exchange_rates():
 
     '''
         Method used to update the exchange rates. It used initially and API that didn't cover the requirements.
-        May be used and adapted for updated in a more efficient way
+        May be used and adapted for update the values in a more efficient way
     '''
     base_currency_code = 'USD'
     currencies_to_update = ['BRL', 'EUR', 'BTC', 'ETH']
